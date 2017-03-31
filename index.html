@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>leaflet加载geohey地图</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.3/dist/leaflet.css" />
+    <link rel="stylesheet" href="dist/leaflet-velocity.css" />
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+
+</head>
+<body>
+<div id="map"></div>
+</body>
+
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.0.3/dist/leaflet.js"></script>
+<script src="dist/leaflet-velocity.js"></script>
+
+
+
+
+<script>
+
+    var mapStuff = initDemoMap();
+    var map = mapStuff.map;
+    var layerControl = mapStuff.layerControl;
+
+
+
+    $.getJSON('weather/TMP_GFS20161225120000.json', function (data) {
+
+        var velocityLayer = L.velocityLayer({
+            displayValues: true,
+            displayOptions: {
+                velocityType: 'Global Wind',
+                displayPosition: 'bottomleft',
+                displayEmptyString: 'No wind data'
+            },
+            data: data,
+            maxVelocity: 30
+        });
+
+        layerControl.addOverlay(velocityLayer, '20161225');
+    });
+
+
+    $.getJSON('weather/wind-global.json', function (data) {
+
+        var velocityLayer = L.velocityLayer({
+            displayValues: true,
+            displayOptions: {
+                velocityType: 'Global Wind',
+                displayPosition: 'bottomleft',
+                displayEmptyString: 'No wind data'
+            },
+            data: data,
+            maxVelocity: 30
+        });
+
+        layerControl.addOverlay(velocityLayer, '样例');
+    });
+
+
+
+
+
+
+    function initDemoMap(){
+
+        var lightMap=getGeoHeyTileLayer('light');
+        var warmMap = getGeoHeyTileLayer('warm');
+        var freshMap=getGeoHeyTileLayer('fresh');
+        var pinkMap=getGeoHeyTileLayer('pink');
+
+
+        var baseLayers={
+            "灰色":lightMap,
+            "温暖":warmMap,
+            "清新":freshMap,
+            "直男粉":pinkMap
+        };
+
+        var map = L.map('map', {
+            layers:[lightMap],
+            center: [31, 121],
+            zoom: 4
+        });
+
+        var layerControl = L.control.layers(baseLayers);
+        layerControl.addTo(map);
+
+        return {
+            map:map,
+            layerControl: layerControl
+        };
+
+
+    }
+
+
+
+    function getGeoHeyTileLayer(mapId){
+        var tiledmap=L.tileLayer('https://geohey.com/s/mapping/{mapId}/all?z={z}&x={x}&y={y}&retina=@2x&ak=YmUwODYyOThhYTQ1NGFmYmE4ZjI0MDhkMDFjNTUwYjQ', {
+
+            attribution: 'GeoHey &copy;',
+            maxZoom: 18,
+            mapId: mapId
+
+        });
+        return tiledmap;
+    }
+
+
+
+
+
+</script>
+</html>
